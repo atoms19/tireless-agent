@@ -11,19 +11,25 @@ interface SessionMetadata {
 
 class SessionManager {
     constructor(){
-		this.db = new Database("~/.supercoder/sessions.sqlite",{create:true});
+		this.db = new Database("sessions.sqlite",{create:true});
 
 		this.db.exec(`
-			 create table sessions if not exists (
+			 create table if not exists sessions (
                 session_id text primary key,
-				    model text not null,
+				    model text,
 					 provider text not null,
-				    created_at text not null default (strftime('%Y-%m-%d %H:%M:%f', 'now')),
+					 chat_history text, 
+				    created_at text not null
+			 );
 						 `)
 	 }
 
-	 newSession(session:SessionMetadata):string{
-       return ''
+	 newSession(model:string,provider:string):string{
+		let sessionId = crypto.randomUUID();
+       this.db.prepare(`
+				insert into sessions (session_id, model, provider,chat_history,created_at) values (?, ?, ?,?,?)
+							  `).run(sessionId, model, provider,'', new Date().toISOString());
+		return sessionId;
 	 }
 
 	 retrieveSession(sessionId:string){

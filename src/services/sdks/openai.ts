@@ -10,21 +10,29 @@ export class openAILLMSDK extends LLMSDK {
 	constructor(apiKey: string, url: string) {
 		super(new OpenAI({
 			apiKey: apiKey,
-			baseURL: url
-		}))
+			baseURL: url,
+		}), "openai")
 		this.availableModels = [];
 	}
 
 	async *startPrompt(messages: LLMessage[], tools: Tool[]) {
 		try {
 		 logWarning('new chat entry')
+
+		 try{
+
 			let response = await this.client.responses.create({
-				model: "openai/gpt-oss-120b:free",
+				model: "qwen/qwen3-coder:free",
 				input: messages,
 				tools: tools,
 				tool_choice: "auto",
 				stream: true
 			})
+		  }catch(e){
+				if(e.status==429){
+								logError('Rate limit exceeded. Please try again later.');
+				}
+		  }
 
 			let toolCalls: ToolCall[] = [];
 

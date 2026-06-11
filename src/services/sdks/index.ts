@@ -10,12 +10,14 @@ interface LLMessage{
 
 interface LLMSDK{
 	 client:LLMClient
+	 sdkName:string
 	 availableModels: string[]
 }
 
 class LLMSDK {
-    constructor(client:LLMClient){
+    constructor(client:LLMClient, sdkName:string){
 		  this.client=client; 
+		  this.sdkName=sdkName;
 	 }	
 }
 export {LLMSDK,LLMessage}

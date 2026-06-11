@@ -8,11 +8,13 @@ import { LLMessage } from "./sdks";
 import { injectSystemPrompt } from "./context/promtInjector";
 import { bashTool, useBashTool } from "./tools";
 import { SessionManager } from "./context/contextManager";
+import { toolCallCorrector } from "./context/toolCallPreventer";
 
 interface AgentCaller {
 	LLMProvider: Provider,
 	SDK: any,
 	sessionSaver:SessionManager
+	currentSessionId:string
 }
 
 class AgentCaller {
@@ -46,6 +48,10 @@ class AgentCaller {
 				role: "user",
 				content: prompt[prompt.length - 1].content
 			})
+
+			this.currentSessionId = this.sessionSaver.newSession(this.SDK.provider,"dummy model")
+
+
 		} else {
 			messages = prompt;
 		}
@@ -70,8 +76,21 @@ class AgentCaller {
 		   content:chat
 		})
 
+
 		let toolcalls = chunk;
 		let toolResponse: any[] = []
+
+
+		let shouldCorrect = toolCallCorrector(chat);
+		if(shouldCorrect && isbot && toolcalls.length == 0){
+            await this.chat([...messages,{
+				role:"user",
+				content:"It seems like you wanted to call a tool but there was an error in the format, please try again and make sure to follow the correct format for tool calls"
+				}],true)
+				return;
+		}
+
+
 		for (const call of toolcalls) {
 			call.arguments = JSON.parse(call.arguments)
 			switch (call.name) {
@@ -91,6 +110,9 @@ class AgentCaller {
 					logError(chalk.bold.red("UNKNOWN TOOL CALL: ", call.name))
 			}
 		}
+
+
+		
 
 		toolResponse = toolResponse.map(res => {
 			return {
@@ -112,3 +134,4 @@ class AgentCaller {
 }
 
 export { AgentCaller }
+
