@@ -6,15 +6,17 @@ import { logError, logWarning } from "../lib/logger";
 import { openAILLMSDK } from "./sdks/openai";
 import { LLMessage } from "./sdks";
 import { injectSystemPrompt } from "./context/promtInjector";
-import { bashTool, useBashTool } from "./tools";
 import { SessionManager } from "./context/contextManager";
 import { toolCallCorrector } from "./context/toolCallPreventer";
+import { ToolDispatcher } from "./tools/dispatcher";
+import { toolReg } from "./tools/index";
 
 interface AgentCaller {
 	LLMProvider: Provider,
 	SDK: any,
 	sessionSaver:SessionManager
-	currentSessionId:string
+	currentSessionId:string,
+	toolDispatcher:ToolDispatcher
 }
 
 class AgentCaller {
@@ -36,6 +38,7 @@ class AgentCaller {
 		}
 
 		this.sessionSaver= new SessionManager();
+		this.toolDispatcher=new ToolDispatcher(toolReg)
 
 	}
 	async chat(prompt: LLMessage[], isbot: boolean = false) {
@@ -60,7 +63,7 @@ class AgentCaller {
 		let chat = "";
 		let reasoning = "";
 		let chunk: any;
-		for await (chunk of this.SDK.startPrompt(messages, [bashTool])) {
+		for await (chunk of this.SDK.startPrompt(messages,toolReg.getAllToolsForLLM())) {
 			if (chunk.type == 'response.reasoning_text.delta') {
 				reasoning += chunk.delta || '';
 			} else {
@@ -78,7 +81,6 @@ class AgentCaller {
 
 
 		let toolcalls = chunk;
-		let toolResponse: any[] = []
 
 
 		let shouldCorrect = toolCallCorrector(chat);
@@ -90,38 +92,13 @@ class AgentCaller {
 				return;
 		}
 
+		messages = [...messages,...toolcalls]
 
-		for (const call of toolcalls) {
-			call.arguments = JSON.parse(call.arguments)
-			switch (call.name) {
-				case "bash":
-					console.log(chalk.bold.yellowBright("TOOL CALL: ", call.name, call.arguments))
-					let response = await useBashTool(call.arguments.command)
-					console.log(response)
-					toolResponse.push({
-						toolName: call.name,
-						call_id: call.call_id,
-						response
-					})
-					call.arguments = JSON.stringify(call.arguments)
-					messages.push(call)
-					break;
-				default:
-					logError(chalk.bold.red("UNKNOWN TOOL CALL: ", call.name))
-			}
-		}
-
-
+	   let toolResponses= await this.toolDispatcher.dispatchAll(toolcalls) 
+       let transformedResponses =this.SDK.formatToolResponses(toolResponses)
 		
 
-		toolResponse = toolResponse.map(res => {
-			return {
-				type: "function_call_output",
-				call_id: res.call_id,
-				output: JSON.stringify(res.response.stdout)
-			}
-		})
-		messages.push(...toolResponse)
+			messages.push(...transformedResponses)
 
 
 		console.log(chunk)

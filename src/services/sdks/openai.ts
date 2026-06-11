@@ -1,9 +1,11 @@
 import { LLMessage, LLMSDK } from "."
-import type { Tool, ToolCall } from "../tools"
+import type {ToolCall} from '../tools/types'
+
 
 import OpenAI from "openai";
 import { logError, logWarning } from "../../lib/logger";
 import { exit } from "process";
+import { LLMTool } from "../tools/types";
 
 
 
@@ -16,26 +18,26 @@ export class openAILLMSDK extends LLMSDK {
 		this.availableModels = [];
 	}
 
-	async *startPrompt(messages: LLMessage[], tools: Tool[]) {
+	async *startPrompt(messages: LLMessage[], tools: LLMTool[]) {
 		try {
-		 logWarning('new chat entry')
-		 let response;
+			logWarning('new chat entry')
+			let response;
 
-		 try{
+			try {
 
-			 response = await this.client.responses.create({
-				model: "openai/gpt-oss-120b:free",
-				input: messages,
-				tools: tools,
-				tool_choice: "auto",
-				stream: true
-			})
-		  }catch(e){
-				if(e.status==429){
-								logError('Rate limit exceeded. Please try again later.');
-								exit()
+				response = await this.client.responses.create({
+					model: "openai/gpt-oss-120b:free",
+					input: messages,
+					tools: tools,
+					tool_choice: "auto",
+					stream: true
+				})
+			} catch (e) {
+				if (e.status == 429) {
+					logError('Rate limit exceeded. Please try again later.');
+					exit()
 				}
-		  }
+			}
 
 			let toolCalls: ToolCall[] = [];
 
@@ -76,4 +78,13 @@ export class openAILLMSDK extends LLMSDK {
 		}
 	}
 
+	formatToolResponses(toolResponses:any[]):any[]{
+		  return toolResponses.map(res => {
+			 return {
+				type: "function_call_output",
+				call_id: res.call_id,
+				output: JSON.stringify(res.response)
+			}
+		})
+	}
 }

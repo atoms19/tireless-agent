@@ -1,22 +1,8 @@
 import chalk from "chalk";
-import {exec, execSync, spawn} from "child_process";
-import { exitCode } from "process";
-interface ToolParameter{
-   type:"string" | "number" | "boolean" | "object",
-   name:string,
-   description:string,
-   required:boolean 
-};
+import { LLMTool } from "../types";
+import { spawn } from "child_process";
 
-export interface Tool{
-   type:string
-   name:string,
-	description:string,
-   parameters:any
-}
-
-
-export let bashTool:Tool =  { 
+export let bashToolSchema:LLMTool =  { 
    type:"function",
    name:"bash",
 	description:"allows to run bash commands to perform tasks such as reading files, writing to them, inspecting the codebase and running developer commands and more in users machine",
@@ -33,22 +19,9 @@ export let bashTool:Tool =  {
 	}
 }
 
-export let writerTool:Tool = {
-    type:"function",
-	 name:"write_to_file",
-	 description:"allows to write to files in users machine can be used to edit or create new files in the users codebase",
-	 parameters:{
-		type:"object",	
-	 }
 
-}
-
-
-
-
-
-
-export async function useBashTool(command:string){
+const execBashTool = (args)=>{
+  let command = args.command;
    console.log(chalk.bold.yellowBright("Executing bash command: ", command))
  return new Promise((resolve,reject)=>{
 
@@ -65,8 +38,6 @@ export async function useBashTool(command:string){
 	  stderr+= data.toString();
 	})
 
-
-
 	child.on("close",(code)=>{
       resolve({
 		  stdout:stdout.length>1000 ? stdout.slice(1000) : stdout,
@@ -74,29 +45,16 @@ export async function useBashTool(command:string){
 		  exitCode:code
 		})
 	})
-
-
   child.on("error",(err)=>{
 	 		 reject(err);
 	})
 
 })
-
 }
 
-
-interface ToolCall {
-  type:'function_call',
-	  id:string,
-   call_id:string,
-	 name:string,
-	 arguments:string
+export let bashTool = {
+	 ...bashToolSchema,
+	 execute: execBashTool
 }
-
-
-
-
-export {Tool, ToolParameter, ToolCall}
-
 
 
