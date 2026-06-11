@@ -82,8 +82,8 @@ class AgentCaller {
 
 
 		let shouldCorrect = toolCallCorrector(chat);
-		if(shouldCorrect && isbot && toolcalls.length == 0){
-            await this.chat([...messages,{
+		if(shouldCorrect && isbot && toolcalls && toolcalls?.length == 0){
+				        await this.chat([...messages,{
 				role:"user",
 				content:"It seems like you wanted to call a tool but there was an error in the format, please try again and make sure to follow the correct format for tool calls"
 				}],true)

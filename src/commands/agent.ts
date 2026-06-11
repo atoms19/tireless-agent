@@ -5,15 +5,19 @@ import { LLMessage } from "../services/sdks";
 
 
 export const agentCommand = new Command("agent")
-  .description('starts the agent')
-  .option('-p, --prompt <prompt>', 'prompt', '')
-  .action(async (options) => { 
+	.description('starts the agent')
+	.option('-p, --prompt <prompt>', 'prompt', '')
+	.option('-r, --resume <sessionId>', 'resume previous session with session id', '')
+	.action(async (options) => {
+		let currentProvider = providerInstance.listProviders();
+		let agentCallerInstance = new AgentCaller(currentProvider[0]); //temporary untill default providers are setup
+		if (options.resume) {
+		   
+		}
+		await agentCallerInstance.chat([{
+			role: "user",
+			content: options.prompt
+		}]);
 
-let currentProvider =providerInstance.listProviders();
-let  agentCallerInstance = new AgentCaller(currentProvider[0]); //temporary
- await agentCallerInstance.chat([{
-	 role:"user",
-	content:options.prompt
-  }]);
+	});
 
-  });

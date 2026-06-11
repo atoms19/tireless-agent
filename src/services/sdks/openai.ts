@@ -3,6 +3,7 @@ import type { Tool, ToolCall } from "../tools"
 
 import OpenAI from "openai";
 import { logError, logWarning } from "../../lib/logger";
+import { exit } from "process";
 
 
 
@@ -18,11 +19,12 @@ export class openAILLMSDK extends LLMSDK {
 	async *startPrompt(messages: LLMessage[], tools: Tool[]) {
 		try {
 		 logWarning('new chat entry')
+		 let response;
 
 		 try{
 
-			let response = await this.client.responses.create({
-				model: "qwen/qwen3-coder:free",
+			 response = await this.client.responses.create({
+				model: "openai/gpt-oss-120b:free",
 				input: messages,
 				tools: tools,
 				tool_choice: "auto",
@@ -31,6 +33,7 @@ export class openAILLMSDK extends LLMSDK {
 		  }catch(e){
 				if(e.status==429){
 								logError('Rate limit exceeded. Please try again later.');
+								exit()
 				}
 		  }
 

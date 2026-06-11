@@ -33,6 +33,9 @@ class SessionManager {
 	 }
 
 	 retrieveSession(sessionId:string){
+		this.db.prepare(`
+
+							 `)
 
 	 }
 

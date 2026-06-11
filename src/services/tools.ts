@@ -31,8 +31,24 @@ export let bashTool:Tool =  {
 		required:["command"],
 		additionalProperties:false
 	}
+}
+
+export let writerTool:Tool = {
+    type:"function",
+	 name:"write_to_file",
+	 description:"allows to write to files in users machine can be used to edit or create new files in the users codebase",
+	 parameters:{
+		type:"object",	
+		
+
+
+	 }
 
 }
+
+
+
+
 
 
 export async function useBashTool(command:string){
@@ -56,7 +72,7 @@ export async function useBashTool(command:string){
 
 	child.on("close",(code)=>{
       resolve({
-		  stdout:stdout.length>100 ? stdout.slice(100) : stdout,
+		  stdout:stdout.length>1000 ? stdout.slice(1000) : stdout,
 		  stderr,
 		  exitCode:code
 		})
