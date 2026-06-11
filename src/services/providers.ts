@@ -1,6 +1,5 @@
 import {join} from "path";
 import { homedir } from "os";
-import chalk from "chalk";
 import { logError, logWarning } from "../lib/logger";
 
 type ProviderTypes = "gemini" | "openai" |  "claude" | "custom"

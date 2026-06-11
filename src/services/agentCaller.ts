@@ -14,9 +14,9 @@ import { toolReg } from "./tools/index";
 interface AgentCaller {
 	LLMProvider: Provider,
 	SDK: any,
-	sessionSaver:SessionManager
-	currentSessionId:string,
-	toolDispatcher:ToolDispatcher
+	sessionSaver: SessionManager
+	currentSessionId: string,
+	toolDispatcher: ToolDispatcher
 }
 
 class AgentCaller {
@@ -37,8 +37,8 @@ class AgentCaller {
 				exit(1)
 		}
 
-		this.sessionSaver= new SessionManager();
-		this.toolDispatcher=new ToolDispatcher(toolReg)
+		this.sessionSaver = new SessionManager();
+		this.toolDispatcher = new ToolDispatcher(toolReg)
 
 	}
 	async chat(prompt: LLMessage[], isbot: boolean = false) {
@@ -52,8 +52,8 @@ class AgentCaller {
 				content: prompt[prompt.length - 1].content
 			})
 
-			this.currentSessionId = this.sessionSaver.newSession(this.SDK.provider,"dummy model")
-         logWarning("new session started with id: "+ this.currentSessionId)
+			this.currentSessionId = this.sessionSaver.newSession(this.SDK.provider, "dummy model")
+			logWarning("new session started with id: " + this.currentSessionId)
 
 		} else {
 			messages = prompt;
@@ -63,20 +63,21 @@ class AgentCaller {
 		let chat = "";
 		let reasoning = "";
 		let chunk: any;
-		for await (chunk of this.SDK.startPrompt(messages,toolReg.getAllToolsForLLM())) {
+		for await (chunk of this.SDK.startPrompt(messages, toolReg.getAllToolsForLLM())) {
 			if (chunk.type == 'response.reasoning_text.delta') {
-				reasoning += chunk.delta || '';
+				let delta  = chunk.delta || '';
+				reasoning +=delta
+				process.stdout.write(chalk.gray(delta))
 			} else {
-				chat += chunk.delta || '';
+				let chatDelta = chunk.delta || '';
+				chat += chatDelta;
+				process.stdout.write(chalk.white(chatDelta))
 			}
 		}
 
-		console.log(chalk.gray("REASONING: ", reasoning))
-		console.log(chalk.white(chat))
-
-		messages.push({
-		   role:"assistant",
-		   content:chat
+	  messages.push({
+			role: "assistant",
+			content: chat
 		})
 
 
@@ -84,21 +85,21 @@ class AgentCaller {
 
 
 		let shouldCorrect = toolCallCorrector(chat);
-		if(shouldCorrect && isbot && toolcalls && toolcalls?.length == 0){
-				        await this.chat([...messages,{
-				role:"user",
-				content:"It seems like you wanted to call a tool but there was an error in the format, please try again and make sure to follow the correct format for tool calls"
-				}],true)
-				return;
+		if (shouldCorrect && isbot && toolcalls && toolcalls?.length == 0) {
+			await this.chat([...messages, {
+				role: "user",
+				content: "It seems like you wanted to call a tool but there was an error in the format, please try again and make sure to follow the correct format for tool calls"
+			}], true)
+			return;
 		}
 
-		messages = [...messages,...toolcalls]
+		messages = [...messages, ...toolcalls]
 
-	   let toolResponses= await this.toolDispatcher.dispatchAll(toolcalls) 
-       let transformedResponses =this.SDK.formatToolResponses(toolResponses)
-		
+		let toolResponses = await this.toolDispatcher.dispatchAll(toolcalls)
+		let transformedResponses = this.SDK.formatToolResponses(toolResponses)
 
-			messages.push(...transformedResponses)
+
+		messages.push(...transformedResponses)
 
 
 		console.log(chunk)
@@ -106,8 +107,8 @@ class AgentCaller {
 
 		if (toolcalls.length > 0) {
 			await this.chat([...messages], true)
-		}else{
-		   this.sessionSaver.saveSession(this.currentSessionId,messages)
+		} else {
+			this.sessionSaver.saveSession(this.currentSessionId, messages)
 		}
 	};
 }
