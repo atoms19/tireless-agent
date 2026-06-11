@@ -2,7 +2,7 @@ import chalk from "chalk";
 import type { Provider } from "./providers";
 import { googleLLMSDK } from "./sdks/google";
 import { exit } from "process";
-import { logError } from "../lib/logger";
+import { logError, logWarning } from "../lib/logger";
 import { openAILLMSDK } from "./sdks/openai";
 import { LLMessage } from "./sdks";
 import { injectSystemPrompt } from "./context/promtInjector";
@@ -50,7 +50,7 @@ class AgentCaller {
 			})
 
 			this.currentSessionId = this.sessionSaver.newSession(this.SDK.provider,"dummy model")
-
+         logWarning("new session started with id: "+ this.currentSessionId)
 
 		} else {
 			messages = prompt;
@@ -129,6 +129,8 @@ class AgentCaller {
 
 		if (toolcalls.length > 0) {
 			await this.chat([...messages], true)
+		}else{
+		   this.sessionSaver.saveSession(this.currentSessionId,messages)
 		}
 	};
 }

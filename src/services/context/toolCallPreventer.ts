@@ -4,7 +4,6 @@ export const toolCallCorrector = (chatMsg:string):boolean=>{
 		let jsonMaybe =JSON.parse(chatMsg);
 		return true;
 	 }catch(e){
-		  console.log("tool call corrector not triggered")
 		  return false;
 	 }
 }

@@ -1,4 +1,6 @@
 import {Database}  from "bun:sqlite"; 
+import { LLMessage } from "../sdks";
+import { Session } from "node:inspector";
 
 interface SessionManager{
   db:Database 
@@ -32,12 +34,22 @@ class SessionManager {
 		return sessionId;
 	 }
 
-	 retrieveSession(sessionId:string){
-		this.db.prepare(`
+	 async retrieveSession(sessionId:string):Promise<LLMessage[]>{
+		let session = await this.db.prepare(`
+			 select chat_history from sessions where session_id = ?
+							 `).get(sessionId)
 
-							 `)
+		return JSON.parse(session.chat_history)
 
 	 }
+
+	 saveSession(sessionId:string,chatHistory:LLMessage[]){
+		let sessionHistoryAsString = JSON.stringify(chatHistory);
+		this.db.prepare(`
+				update sessions set chat_history = ? where session_id = ?
+				  `).run(sessionHistoryAsString,sessionId)
+	 }
+	 
 
 }
 

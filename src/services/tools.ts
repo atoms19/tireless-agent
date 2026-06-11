@@ -8,7 +8,7 @@ interface ToolParameter{
    required:boolean 
 };
 
-interface Tool{
+export interface Tool{
    type:string
    name:string,
 	description:string,
@@ -39,9 +39,6 @@ export let writerTool:Tool = {
 	 description:"allows to write to files in users machine can be used to edit or create new files in the users codebase",
 	 parameters:{
 		type:"object",	
-		
-
-
 	 }
 
 }
