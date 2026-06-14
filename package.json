@@ -3,7 +3,8 @@
     "@google/genai": "^2.8.0",
     "@types/commander": "^2.12.5",
     "chalk": "^5.6.2",
-    "openai": "^6.42.0"
+    "openai": "^6.42.0",
+    "terminosaurus": "^3.0.0-rc.11"
   },
   "scripts": {
     "start": "bun cli.ts"

@@ -1,6 +1,5 @@
 import chalk from "chalk";
 import { ToolRegistry } from "./registry";
-import { Tool } from "./types";
 
 interface ToolDispatcher {
 	tooRegistry: ToolRegistry

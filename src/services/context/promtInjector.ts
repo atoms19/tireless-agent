@@ -1,3 +1,5 @@
+import { toolReg } from "../tools"
+
 interface Tool {
    name:string,
 	description:string,
@@ -6,8 +8,10 @@ interface Tool {
 }
 
 function injectTools(){
-   return `
-- bash tool: allows to run bash commands on the users machine`
+   let toolData = ""
+   toolReg.getAllToolsForLLM().map((tool:any)=>{   
+	  toolData += "-"+tool.description + "\n";
+  })
 }
 
 
@@ -22,7 +26,7 @@ produce toolcalls in json format when u feel like users request can be solved wi
 be kind and helpful to the user and try to solve their problems with the tools you have access to
 
 you canot just produce outputs as text you have to produce the toolcalls to write files 
-to write file you must use the bash tool calls
+to write file you must use the bash tool calls and to spawn subagents you must use the spawnsubagent tool calls
 
 you must always produce toolCalls when you want to use any tools
 

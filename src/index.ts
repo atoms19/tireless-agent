@@ -5,6 +5,7 @@ import { providerCommand } from './commands/providers';
 import { ProviderService } from './services';
 import chalk from 'chalk';
 import {AgentCaller} from './services/agentCaller';
+import { sessionCommand } from './commands/session/index';
 
 
 export let providerInstance = new ProviderService();
@@ -19,11 +20,12 @@ console.log(chalk.green('cached credentials loaded successfully'))
 }
 
 program
-  .name('supercoder')
+  .name('tireless agent')
   .description('Very Powerful Coding Agent powered by your terminal')
   .version('1.1.0')
   .addCommand(modelsCommand)
   .addCommand(agentCommand)
+  .addCommand(sessionCommand)
   .addCommand(providerCommand);
 program.parse()
 

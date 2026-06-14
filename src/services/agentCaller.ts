@@ -65,17 +65,20 @@ class AgentCaller {
 		let chunk: any;
 		for await (chunk of this.SDK.startPrompt(messages, toolReg.getAllToolsForLLM())) {
 			if (chunk.type == 'response.reasoning_text.delta') {
-				let delta  = chunk.delta || '';
-				reasoning +=delta
+				let delta = chunk.delta || '';
+				reasoning += delta
 				process.stdout.write(chalk.gray(delta))
 			} else {
+				if (chat.length == 0 && reasoning.length > 0) {
+					process.stdout.write('\n')
+				}
 				let chatDelta = chunk.delta || '';
 				chat += chatDelta;
 				process.stdout.write(chalk.white(chatDelta))
 			}
 		}
 
-	  messages.push({
+		messages.push({
 			role: "assistant",
 			content: chat
 		})

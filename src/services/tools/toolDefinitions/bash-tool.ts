@@ -1,6 +1,7 @@
 import chalk from "chalk";
 import { LLMTool } from "../types";
 import { spawn } from "child_process";
+import { PermissionManager, perms } from "../permissionManager";
 
 export let bashToolSchema:LLMTool =  { 
    type:"function",
@@ -20,11 +21,16 @@ export let bashToolSchema:LLMTool =  {
 }
 
 
-const execBashTool = (args)=>{
+
+const execBashTool = (args:any)=>{
   let command = args.command;
    console.log(chalk.bold.yellowBright("Executing bash command: ", command))
  return new Promise((resolve,reject)=>{
-
+  if (perms.isMalliciousCommand(command)) reject({
+	  stdout:"",
+	  stderr:"Command rejected due to security reasons",
+	  exitCode:1
+  })
   let child = spawn("bash",["-c",command],{
 		stdio:["ignore","pipe","pipe"]
 	}); 
