@@ -1,14 +1,20 @@
 import { spawn } from 'child_process';
 import { Environment } from './environment';
 
+interface ExecutorOutput {
+	success: boolean;
+	output: string
+	error: string,
+	exitCode: number
+};
 
 
-export class DockerEnvironment extends Environment {
+export class DockerEnvironment implements Environment {
 	private environmentProcess: any;
 	private imageName: string = "vimbox:latest";
 	private currentContainerName: string | null = null;
+	private initialized = false;
 	constructor() {
-		super()
 	}
 	async isAvailable(): Promise<boolean> {
 		return new Promise((resolve) => {
@@ -32,7 +38,7 @@ export class DockerEnvironment extends Environment {
 
 	async buildImage() {
 		return new Promise((resolve, reject) => {
-			let build = spawn("bash", ["-c", "docker build -t " + this.imageName + "."], {
+			let build = spawn("bash", ["-c", "docker build -t " + this.imageName + " ."], {
 				stdio: "pipe"
 			})
 
@@ -59,22 +65,27 @@ export class DockerEnvironment extends Environment {
 
 	}
 
-	async StartEnvironment(environmentImage: string) {
-		if (!await this.hasImageReady(environmentImage)) {
-			console.error("Environment image not found:", environmentImage)
-			return;
+	async StartEnvironment(environmentImage: string, options?: {
+		mountPath?: string
+	}): Promise<boolean> {
+		if (await this.hasImageReady(environmentImage)) {
 		} else {
 			try {
 				let res = await this.buildImage();
 			} catch (err) {
 				console.error("Failed to build environment image:", err)
-				return;
+				return false;
 			}
-
 		}
 		let namegen = crypto.randomUUID();
-		this.environmentProcess = spawn("bash", ["-c", `docker run -t --rm -d ${namegen} --name my-container ${ environmentImage}`], {
-			stdio: "pipe"
+		let mounts = "";
+		if (options) {
+			if (options.mountPath) {
+				mounts += ` -v ${options.mountPath}:/app `
+			}
+		}
+		this.environmentProcess = spawn("bash", ["-c", `docker run -t --rm -d --name ${namegen} ${mounts} ${environmentImage}`], {
+			stdio: ["ignore", "pipe", "pipe"]
 		})
 
 		this.environmentProcess.on("error", (err: any) => {
@@ -82,13 +93,13 @@ export class DockerEnvironment extends Environment {
 		})
 
 		this.environmentProcess.stdout.on("data", (data: any) => {
-			console.log(`Environment output: ${data}`)
+			this.currentContainerName = data.toString().trim();
 		})
 
 		return new Promise((resolve, reject) => {
 			this.environmentProcess.on("exit", (code: any) => {
 				if (code === 0) {
-				   this.currentContainerName = namegen;
+					this.currentContainerName = namegen;
 					resolve(true)
 				} else {
 					reject(new Error("Environment process exited with code " + code))
@@ -124,14 +135,81 @@ export class DockerEnvironment extends Environment {
 
 		})
 	}
-	async initialize() {
-		await this.StartEnvironment(this.imageName).then(dat => {
-			console.log("Environment started successfully")
-		}).catch(() => {
-			console.error("Failed to start environment")
-		});
+	async initialize(mountPaht?: string) {
+		try {
+			this.initialized = await this.StartEnvironment(this.imageName, {
+				mountPath: mountPaht
+			})
+		} catch (e) {
+			console.error("Failed to initialize Docker environment:", e)
+		}
+	}
+
+	async execute(command: string): Promise<ExecutorOutput> {
+		if (!this.initialized || !this.currentContainerName) return {
+			success: false, output: "", error: "Environment not initialized", exitCode: -1
+
+		}
+		console.log(`Executing command in container ${this.currentContainerName}: ${command}`)
+		return new Promise((resolve) => {
+			let exc = spawn("docker", ["exec", this.currentContainerName ?? '', "bash", "-c", command], {
+				stdio: ["ignore", "pipe", "pipe"]
+			})
+			let stddata = "";
+			let stderrdata = "";
+
+			exc.stdout.on("data", (data) => {
+				stddata += data.toString();
+			})
+			exc.stderr.on("data", (err) => {
+				stderrdata += err.toString();
+			})
+
+			exc.on("error", (err) => {
+				resolve({
+					success: false, output: stderrdata,
+					error: err.message, exitCode: -1
+				})
+			})
+
+			exc.on("exit", (code) => {
+				if (code === 0) {
+					resolve({
+						success: true, output: stddata,
+						error: stderrdata, exitCode: code
+					})
+				} else {
+					resolve({
+						success: false, output: stderrdata
+						, error: stderrdata, exitCode: code ?? 1
+					})
+				}
+			})
+
+		})
+
+	}
+
+	async stopEnvironment() {
+		return new Promise((resolve, reject) => {
+			if (!this.currentContainerName) {
+				return resolve(false);
+			}
+
+			let stop = spawn("bash", ["-c", `docker stop ${this.currentContainerName}`], {
+				stdio: ["ignore", "pipe", "pipe"]
+			})
+
+			stop.on("error", (err: any) => {
+				console.error("Failed to stop environment:", err)
+				reject(err)
+			})
+
+			resolve(true)
+		})
 
 	}
 
 
 }
+

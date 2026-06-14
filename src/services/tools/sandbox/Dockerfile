@@ -1,7 +1,17 @@
-from ubuntu:24.04
+FROM node:24-bookworm
 
-run apt update && apt install -y nodejs rgrep fzf git wget gcc make 
-workdir /app
+RUN apt-get update && apt-get install -y \
+    ripgrep \
+    fzf \
+    git \
+    wget \
+    gcc \
+    g++ \
+    make \
+    python3 \
+    python3-pip \
+    neovim \
+    curl \
+    jq
 
-
-
+WORKDIR /workspace

@@ -1,13 +1,17 @@
 import chalk from "chalk";
 import { ToolRegistry } from "./registry";
+import { Environment } from "./sandbox/environment";
+
 
 interface ToolDispatcher {
 	tooRegistry: ToolRegistry
+	exectionEnvironment:Environment
 }
 
 class ToolDispatcher {
-	constructor(toolRegistry: ToolRegistry) {
+	constructor(toolRegistry: ToolRegistry, executionEnvironment: Environment) {
 		this.tooRegistry = toolRegistry;
+		this.exectionEnvironment = executionEnvironment;
 	}
 
 	async dispatchAll(toolCalls: any[]) {
@@ -19,7 +23,7 @@ class ToolDispatcher {
 				console.log(chalk.bold.red("TOOL NOT REGISTERED: ", toolCall.name))
 				continue;
 			}
-			let response = await toolRequired.execute(parsedArguments)
+			let response = await toolRequired.execute(this.exectionEnvironment,parsedArguments)
 			toolResponse.push({
 				call_id: toolCall.call_id,
 			  response})

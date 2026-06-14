@@ -3,6 +3,8 @@ import { AgentCaller } from "../services/agentCaller";
 import { providerInstance } from "..";
 import { LLMessage } from "../services/sdks";
 import { SessionManager } from "../services/context/contextManager";
+import { DockerEnvironment } from "../services/tools/sandbox/dockerEnvironment";
+import { getWorkingdir } from "../lib/wordir";
 
 
 export const agentCommand = new Command("agent")
@@ -11,22 +13,24 @@ export const agentCommand = new Command("agent")
 	.option('-r, --resume <sessionId>', 'resume previous session with session id', '')
 	.action(async (options) => {
 		let currentProvider = providerInstance.listProviders();
-		let agentCallerInstance = new AgentCaller(currentProvider[0]); //temporary untill default providers are setup
+		let executionEnvironment = new DockerEnvironment();
+		await executionEnvironment.initialize(getWorkingdir());
+		let agentCallerInstance = new AgentCaller(currentProvider[0], executionEnvironment); //temporary untill default providers are setup
 		if (options.resume) {
-		    let sessionService = new SessionManager();
-		    let sessionHistory:LLMessage[] =  await sessionService.retrieveSession(options.resume);	
-			 if(sessionHistory){
-				  await agentCallerInstance.chat([...sessionHistory,{
-					role:"user",
+			let sessionService = new SessionManager();
+			let sessionHistory: LLMessage[] = await sessionService.retrieveSession(options.resume);
+			if (sessionHistory) {
+				await agentCallerInstance.chat([...sessionHistory, {
+					role: "user",
 					content: options.prompt
-				}],true)
-				return 
-			 }
+				}], true)
+				return
+			}
 		}
 		await agentCallerInstance.chat([{
 			role: "user",
 			content: options.prompt
 		}]);
-
+		await executionEnvironment.stopEnvironment();
 	});
 

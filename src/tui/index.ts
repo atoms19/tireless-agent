@@ -1,12 +1,8 @@
 
 import { StyleValues, TermElement, TermInput, TermText, color, length, run } from 'terminosaurus';
-import { AgentCaller } from '../services/agentCaller';
-import { providerInstance } from '..';
 
-export function startTerminalSession() {
 
-	let currentProvider = providerInstance.listProviders();
-	let agentCallerInstance = new AgentCaller(currentProvider[0]); //temporary untill default providers are setup
+export function startTerminalSession(){ 
    let chatPrompt = ""
 
 	run(screen => {
@@ -84,7 +80,7 @@ directory: ${chatPrompt}
 
 
 	  let text = new TermText(); 
-	  
+
 
 
 
@@ -93,3 +89,4 @@ directory: ${chatPrompt}
 		tx.appendTo(screen.rootNode)
 	});
 }
+

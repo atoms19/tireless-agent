@@ -1,11 +1,7 @@
 
 export interface Environment{
-	 execute:() => any,
-	 //isAvailable:()=> Promise<boolean>,
-	// initialize:()=>void
+	  execute:(command:string) => any,
+	 isAvailable:()=> Promise<boolean>,
+	 initialize:()=>void
 }
 
-export class Environment {	
-   constructor() {
-    }  
-}

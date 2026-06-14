@@ -11,6 +11,7 @@ import { sessionCommand } from './commands/session/index';
 export let providerInstance = new ProviderService();
 let agentCallerInstance:AgentCaller;
 
+
 try{
 await providerInstance.loadSavedData()
 console.log(chalk.green('cached credentials loaded successfully'))

@@ -2,6 +2,7 @@ import chalk from "chalk";
 import { LLMTool } from "../types";
 import { spawn } from "child_process";
 import { PermissionManager, perms } from "../permissionManager";
+import { Environment } from "../sandbox/environment";
 
 export let bashToolSchema:LLMTool =  { 
    type:"function",
@@ -20,7 +21,22 @@ export let bashToolSchema:LLMTool =  {
 	}
 }
 
+const execBashToolNew = async (environment:Enviroment,args:any)=> {
+	 let command = args.command; 
+	 console.log(chalk.bold.yellowBright("Executing bash command in docker : ", command))
+	 try {
+		 let response = await environment.execute(command);
+		 return response;
 
+	 } catch (err) {
+		 return {
+			 stdout:"",
+			 stderr:err,
+			 exitCode:-1
+		 }
+	 }
+
+}
 
 const execBashTool = (args:any)=>{
   let command = args.command;
@@ -60,7 +76,7 @@ const execBashTool = (args:any)=>{
 
 export let bashTool = {
 	 ...bashToolSchema,
-	 execute: execBashTool
+	 execute: execBashToolNew
 }
 
 

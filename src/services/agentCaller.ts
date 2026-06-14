@@ -10,6 +10,7 @@ import { SessionManager } from "./context/contextManager";
 import { toolCallCorrector } from "./context/toolCallPreventer";
 import { ToolDispatcher } from "./tools/dispatcher";
 import { toolReg } from "./tools/index";
+import { Environment } from "./tools/sandbox/environment";
 
 interface AgentCaller {
 	LLMProvider: Provider,
@@ -20,7 +21,7 @@ interface AgentCaller {
 }
 
 class AgentCaller {
-	constructor(provider: Provider) {
+	constructor(provider: Provider, executionEnvironment: Environment) {
 		if (!provider) {
 			logError("FAILED TO START AGENT, NO PROVIDER SELECTED!!");
 		}
@@ -38,7 +39,7 @@ class AgentCaller {
 		}
 
 		this.sessionSaver = new SessionManager();
-		this.toolDispatcher = new ToolDispatcher(toolReg)
+		this.toolDispatcher = new ToolDispatcher(toolReg,executionEnvironment)
 
 	}
 	async chat(prompt: LLMessage[], isbot: boolean = false) {
