@@ -12,9 +12,15 @@ interface ExecutorOutput {
 export class DockerEnvironment implements Environment {
 	private environmentProcess: any;
 	private imageName: string = "vimbox:latest";
-	private currentContainerName: string | null = null;
+	private  currentContainerName: string | null = null;
 	private initialized = false;
 	constructor() {
+	}
+
+
+	getEnvironmentId(): string {
+	 return this.currentContainerName ?? "uninitialized";
+
 	}
 	async isAvailable(): Promise<boolean> {
 		return new Promise((resolve) => {

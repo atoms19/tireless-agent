@@ -18,6 +18,7 @@ interface AgentCaller {
 	sessionSaver: SessionManager
 	currentSessionId: string,
 	toolDispatcher: ToolDispatcher
+	environment: Environment
 }
 
 class AgentCaller {
@@ -25,6 +26,7 @@ class AgentCaller {
 		if (!provider) {
 			logError("FAILED TO START AGENT, NO PROVIDER SELECTED!!");
 		}
+		this.environment = executionEnvironment;
 
 		switch (provider.providerType) {
 			case "gemini":
@@ -53,7 +55,7 @@ class AgentCaller {
 				content: prompt[prompt.length - 1].content
 			})
 
-			this.currentSessionId = this.sessionSaver.newSession(this.SDK.provider, "dummy model")
+			this.currentSessionId = this.sessionSaver.newSession(this.SDK.provider, "dummy model");
 			logWarning("new session started with id: " + this.currentSessionId)
 
 		} else {
