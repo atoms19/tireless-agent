@@ -1,5 +1,5 @@
 import { Command } from "commander";
-import { startTerminalSession } from "../../tui";
+import { startTerminalSession } from "../../tui/source/index.tsx";
 
 
 const startSession = new Command('start').

@@ -4,6 +4,7 @@ type LLMClient =any ;
 interface LLMessage{
    role:"user" | "assistant" | "tool" | "system", 
 	toolName?:string,
+	reasoning?:string,
 	content:string,
 	tool_calls?:any
 }

@@ -70,14 +70,14 @@ class AgentCaller {
 			if (chunk.type == 'response.reasoning_text.delta') {
 				let delta = chunk.delta || '';
 				reasoning += delta
-				process.stdout.write(chalk.gray(delta))
+			//	process.stdout.write(chalk.gray(delta))
 			} else {
 				if (chat.length == 0 && reasoning.length > 0) {
 					process.stdout.write('\n')
 				}
 				let chatDelta = chunk.delta || '';
 				chat += chatDelta;
-				process.stdout.write(chalk.white(chatDelta))
+			//	process.stdout.write(chalk.white(chatDelta))
 			}
 		}
 
@@ -112,9 +112,13 @@ class AgentCaller {
 
 
 		if (toolcalls.length > 0) {
-			await this.chat([...messages], true)
+		     console.log(messages)
+		if (messages!=null && messages.length > 0) {	
+		   await this.chat([...messages], true)
+		  }
 		} else {
-			this.sessionSaver.saveSession(this.currentSessionId, messages)
+		  this.sessionSaver.saveSession(this.currentSessionId, messages)
+			return; 
 		}
 	};
 }

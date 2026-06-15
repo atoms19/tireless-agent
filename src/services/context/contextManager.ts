@@ -35,6 +35,9 @@ class SessionManager {
 		let session = await this.db.prepare(`
 			 select chat_history from sessions where session_id = ?
 							 `).get(sessionId)
+			 console.log("sesion recieved",sessionId)
+			 console.log("data is ",session)
+			 if(!session) return []
 
 		return JSON.parse(session.chat_history)
 
