@@ -5,9 +5,9 @@ import { Header } from './components/Header';
 import { ChatHistory } from './components/ChatHistory';
 import { ChatInput } from './components/ChatInput';
 import { LLMDisplayMessage } from './components/ChatHistory.js';
+import { useApp, useInput } from 'ink';
 
-
-export function App({ client, session }: { client: any, session: any }) {
+export function App({ client, session, environment }: { client: any, session: any, environment: any }) {
 	const [inputValue, setInputValue] = useState('');
 	const [messages, setMessages] = useState<LLMDisplayMessage[]>([]);
 	const [isChatInitialized, setIsChatInitialized] = useState(false);
@@ -16,6 +16,17 @@ export function App({ client, session }: { client: any, session: any }) {
 	let effort = "low";
 	let contextUsed = 0
 	let contextLimit = 4096;
+
+	const { exit } = useApp();
+
+	useInput(async (input, key) => {
+		if (key.ctrl && input === 'd') {
+			console.log("Stopping environment and exiting...")
+			await environment.stopEnvironment();
+			exit();
+		}
+	})
+
 
 	async function handleSubmit() {
 

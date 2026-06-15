@@ -36,5 +36,5 @@ export async function startTerminalSession(){
 	let currentProvider = providerInstance.listProviders();
 	let agentCallerInstance  = new AgentCaller(currentProvider[0], executionEnvironment); //temporary untill default providers are setup
     let sessionService = new SessionManager();
-render(<App client={agentCallerInstance} session={sessionService} />);
+render(<App environment={executionEnvironment} client={agentCallerInstance} session={sessionService} />);
 }
