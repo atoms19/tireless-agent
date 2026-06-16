@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Box, Text } from 'ink';
-
 import { Header } from './components/Header';
 import { ChatHistory } from './components/ChatHistory';
 import { ChatInput } from './components/ChatInput';
@@ -12,7 +11,7 @@ export function App({ client, session, environment }: { client: any, session: an
 	const [messages, setMessages] = useState<LLMDisplayMessage[]>([]);
 	const [isChatInitialized, setIsChatInitialized] = useState(false);
 	const [isStreaming, setIsStreaming] = useState(false);
-	let model = "gpt-3.5-turbo";
+	let model = "gpt-oss(120b)";
 	let effort = "low";
 	let contextUsed = 0
 	let contextLimit = 4096;
