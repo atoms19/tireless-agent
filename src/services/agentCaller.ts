@@ -11,6 +11,7 @@ import { toolCallCorrector } from "./context/toolCallPreventer";
 import { ToolDispatcher } from "./tools/dispatcher";
 import { toolReg } from "./tools/index";
 import { Environment } from "./tools/sandbox/environment";
+import { openAICompletionsLLMSDK } from "./sdks/local";
 
 interface AgentCaller {
 	LLMProvider: Provider,
@@ -32,9 +33,12 @@ class AgentCaller {
 			case "gemini":
 				this.SDK = new googleLLMSDK(provider.api_key);
 				break;
-			case "openai":
+			case "openai-responses":
 				this.SDK = new openAILLMSDK(provider.api_key, provider.url);
 				break;
+		   case "openai-completions":
+			    this.SDK= new  openAICompletionsLLMSDK(provider.api_key,provider.url);
+			    break;
 			default:
 				logError(chalk.bold.red("INVALID PROVIDER, NOT SUPPORTED!!", provider.providerType));
 				exit(1)

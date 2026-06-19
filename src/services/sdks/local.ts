@@ -9,7 +9,7 @@ import { LLMTool } from "../tools/types";
 
 
 
-export class openAILLMSDK extends LLMSDK {
+export class openAICompletionsLLMSDK extends LLMSDK {
 	constructor(apiKey: string, url: string) {
 	  console.log("recieved",apiKey,url)
 		super(new OpenAI({
@@ -26,14 +26,16 @@ export class openAILLMSDK extends LLMSDK {
 
 			try {
 
-				response = await this.client.responses.create({
+				response = await this.client.chat.completions.create({
 					model: "google/gemma-4-31b-it:free",
-					input: messages,
-					tools: tools,
-					tool_choice: "auto",
-					stream: true
+				  messages:messages,
+				 // tools: tools,
+				  //tool_choice: "auto",
+				  stream: true
 				})
+
 			} catch (e) {
+			  console.log(e)
 				if (e.status == 429) {
 					logError('Rate limit exceeded. Please try again later.');
 					exit()

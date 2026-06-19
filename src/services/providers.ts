@@ -2,7 +2,7 @@ import {join} from "path";
 import { homedir } from "os";
 import { logError, logWarning } from "../lib/logger";
 
-type ProviderTypes = "gemini" | "openai" |  "claude" | "custom"
+type ProviderTypes = "gemini" | "openai-responses" | "openai-completions" |  "claude" | "custom"
 
 type Provider = {
   api_key:string,
