@@ -1,6 +1,7 @@
 import chalk from "chalk";
 import { ToolRegistry } from "./registry";
 import { Environment } from "./sandbox/environment";
+import { logWarning } from "../../lib/logger";
 
 
 interface ToolDispatcher {
@@ -17,7 +18,20 @@ class ToolDispatcher {
 	async dispatchAll(toolCalls: any[]) {
 		let toolResponse: any[] = []
 		for (let toolCall of toolCalls) {
-			let parsedArguments = JSON.parse(toolCall.arguments);
+		  logWarning("toolcall to be made:")
+		  console.log(toolCall);
+		  console.log(toolCall.arguments)
+		  
+			let parsedArguments=""
+			try{
+			parsedArguments= JSON.parse(toolCall.arguments);
+			}catch{
+				try {
+				  parsedArguments=JSON.parse(toolCall.arguments.slice(1));
+				}catch {
+					 parsedArguments=JSON.parse(toolCall.arguments.slice(-1));
+				}
+			}
 			let toolRequired = this.tooRegistry.getTool(toolCall.name)
 			if (toolRequired == undefined) {
 				console.log(chalk.bold.red("TOOL NOT REGISTERED: ", toolCall.name))

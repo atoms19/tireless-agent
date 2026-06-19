@@ -11,7 +11,7 @@ interface ExecutorOutput {
 
 export class DockerEnvironment implements Environment {
 	private environmentProcess: any;
-	private imageName: string = "vimbox:latest";
+	private imageName: string = "sandbox:latest";
 	private  currentContainerName: string | null = null;
 	private initialized = false;
 	constructor() {

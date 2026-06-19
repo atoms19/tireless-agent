@@ -1,5 +1,7 @@
 FROM node:24-bookworm
 
+
+
 RUN apt-get update && apt-get install -y \
     ripgrep \
     fzf \
@@ -15,4 +17,8 @@ RUN apt-get update && apt-get install -y \
     curl \
     jq
 
-WORKDIR /workspace
+COPY apply_patch.py /usr/local/bin/apply_patch
+RUN chmod +x /usr/local/bin/apply_patch
+
+
+WORKDIR /app

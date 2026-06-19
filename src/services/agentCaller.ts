@@ -88,6 +88,7 @@ class AgentCaller {
 
 
 		let toolcalls = chunk;
+		console.log(toolcalls)
 
 
 		let shouldCorrect = toolCallCorrector(chat);
