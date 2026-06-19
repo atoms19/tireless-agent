@@ -24,8 +24,10 @@ export let bashToolSchema:LLMTool =  {
 const execBashToolNew = async (environment:Enviroment,args:any)=> {
 	 let command = args.command; 
 	 console.log(chalk.bold.yellowBright("Executing bash command in docker : ", command))
+	 let LINE_LIMIT=500;
+	 let safeCommand = `{\n${command}\n} | head -n ${LINE_LIMIT + 1}`;
 	 try {
-		 let response = await environment.execute(command);
+		 let response = await environment.execute(safeCommand);
 		 return response;
 
 	 } catch (err) {

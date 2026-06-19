@@ -29,7 +29,12 @@ class ToolDispatcher {
 				try {
 				  parsedArguments=JSON.parse(toolCall.arguments.slice(1));
 				}catch {
+				  try{
 					 parsedArguments=JSON.parse(toolCall.arguments.slice(-1));
+				  }catch{
+					 return ["INVALID TOOLCALL"]
+
+				  }
 				}
 			}
 			let toolRequired = this.tooRegistry.getTool(toolCall.name)

@@ -70,14 +70,14 @@ class AgentCaller {
 			if (chunk.type == 'response.reasoning_text.delta') {
 				let delta = chunk.delta || '';
 				reasoning += delta
-			//	process.stdout.write(chalk.gray(delta))
+				process.stdout.write(chalk.gray(delta))
 			} else {
 				if (chat.length == 0 && reasoning.length > 0) {
 					process.stdout.write('\n')
 				}
 				let chatDelta = chunk.delta || '';
 				chat += chatDelta;
-			//	process.stdout.write(chalk.white(chatDelta))
+			process.stdout.write(chalk.white(chatDelta))
 			}
 		}
 
@@ -103,6 +103,16 @@ class AgentCaller {
 		messages = [...messages, ...toolcalls]
 
 		let toolResponses = await this.toolDispatcher.dispatchAll(toolcalls)
+		if(toolResponses[0] == "INVALID TOOLCALL"){
+			  
+			 await this.chat([...messages, {
+				role: "user",
+				content: "It seems like you wanted to call a tool but there was an error in the format, please try again and make sure to follow the correct format for tool calls and its arguments"
+			}], true)
+			return;
+
+
+		}
 		let transformedResponses = this.SDK.formatToolResponses(toolResponses)
 
 

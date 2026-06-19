@@ -26,7 +26,7 @@ export class openAILLMSDK extends LLMSDK {
 			try {
 
 				response = await this.client.responses.create({
-					model: "openai/gpt-oss-120b:free",
+					model: "google/gemma-4-31b-it:free",
 					input: messages,
 					tools: tools,
 					tool_choice: "auto",
