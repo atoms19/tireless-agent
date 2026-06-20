@@ -32,5 +32,5 @@ export const agentCommand = new Command("agent")
 			content: options.prompt
 		}]);
 		await executionEnvironment.stopEnvironment();
-	});
+    });
 

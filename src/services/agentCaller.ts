@@ -28,7 +28,6 @@ class AgentCaller {
 			logError("FAILED TO START AGENT, NO PROVIDER SELECTED!!");
 		}
 		this.environment = executionEnvironment;
-
 		switch (provider.providerType) {
 			case "gemini":
 				this.SDK = new googleLLMSDK(provider.api_key);
