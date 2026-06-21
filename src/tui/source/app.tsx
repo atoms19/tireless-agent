@@ -6,13 +6,25 @@ import { ChatInput } from './components/ChatInput';
 import { LLMDisplayMessage } from './components/ChatHistory.js';
 import { useApp, useInput } from 'ink';
 
-export function App({ client, session, environment }: { client: any, session: any, environment: any }) {
+export function App({
+	client,
+	session,
+	environment,
+	defaultModel,
+	effort
+}: {
+	client: any;
+	session: any;
+	environment: any;
+	defaultModel?: string;
+	effort?: string;
+}) {
 	const [inputValue, setInputValue] = useState('');
 	const [messages, setMessages] = useState<LLMDisplayMessage[]>([]);
 	const [isChatInitialized, setIsChatInitialized] = useState(false);
 	const [isStreaming, setIsStreaming] = useState(false);
-	let model = "gpt-oss(120b)";
-	let effort = "low";
+	let model = defaultModel || "gpt-oss(120b)";
+	let currentEffort = effort || "low";
 	let contextUsed = 0
 	let contextLimit = 4096;
 
@@ -64,7 +76,7 @@ export function App({ client, session, environment }: { client: any, session: an
 
 	return (
 		<Box flexDirection="column">
-			<Header model="gpt-3.5-turbo" directory="/path/to/agent" />
+			<Header model={defaultModel} directory={process.cwd().replace("/home/*/","~")} />
 			<Box flexDirection="column" >
 				<ChatHistory
 					Messages={messages}
@@ -85,7 +97,7 @@ export function App({ client, session, environment }: { client: any, session: an
 			<Box marginX={2} marginBottom={0} gap={2} justifyContent="space-between">
 				<Text dimColor>{process.cwd()}</Text>
 				<Box gap={2}>
-					<Text color="gray" >{model}•{effort}</Text>
+					<Text color="gray" >{model}•{currentEffort}</Text>
 					<Text color="gray" >{contextUsed}/{contextLimit}</Text>
 				</Box>
 			</Box>

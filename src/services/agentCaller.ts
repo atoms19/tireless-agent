@@ -23,20 +23,20 @@ interface AgentCaller {
 }
 
 class AgentCaller {
-	constructor(provider: Provider, executionEnvironment: Environment) {
+	constructor(provider: Provider, executionEnvironment: Environment, model?: string, effort?: string) {
 		if (!provider) {
 			logError("FAILED TO START AGENT, NO PROVIDER SELECTED!!");
 		}
 		this.environment = executionEnvironment;
 		switch (provider.providerType) {
 			case "gemini":
-				this.SDK = new googleLLMSDK(provider.api_key);
+				this.SDK = new googleLLMSDK(provider.api_key, model);
 				break;
 			case "openai-responses":
-				this.SDK = new openAILLMSDK(provider.api_key, provider.url);
+				this.SDK = new openAILLMSDK(provider.api_key, provider.url, model, effort);
 				break;
 		   case "openai-completions":
-			    this.SDK= new  openAICompletionsLLMSDK(provider.api_key,provider.url);
+			    this.SDK= new  openAICompletionsLLMSDK(provider.api_key,provider.url, model, effort);
 			    break;
 			default:
 				logError(chalk.bold.red("INVALID PROVIDER, NOT SUPPORTED!!", provider.providerType));
@@ -58,7 +58,7 @@ class AgentCaller {
 				content: prompt[prompt.length - 1].content
 			})
 
-			this.currentSessionId = this.sessionSaver.newSession(this.SDK.provider, "dummy model");
+			this.currentSessionId = this.sessionSaver.newSession(this.SDK.provider, this.SDK.defaultModel || "dummy model");
 			logWarning("new session started with id: " + this.currentSessionId)
 
 		} else {

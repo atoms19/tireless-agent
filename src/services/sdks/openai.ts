@@ -10,13 +10,18 @@ import { LLMTool } from "../tools/types";
 
 
 export class openAILLMSDK extends LLMSDK {
-	constructor(apiKey: string, url: string) {
+	defaultModel: string;
+	effort: string;
+
+	constructor(apiKey: string, url: string, model?: string, effort?: string) {
 	  console.log("recieved",apiKey,url)
 		super(new OpenAI({
 			apiKey: apiKey,
 			baseURL: url,
 		}), "openai")
 		this.availableModels = [];
+		this.defaultModel = model || "google/gemma-4-31b-it:free";
+		this.effort = effort || "low";
 	}
 
 	async *startPrompt(messages: LLMessage[], tools: LLMTool[]) {
@@ -25,14 +30,17 @@ export class openAILLMSDK extends LLMSDK {
 			let response;
 
 			try {
-
-				response = await this.client.responses.create({
-					model: "google/gemma-4-31b-it:free",
+				const params: any = {
+					model: this.defaultModel,
 					input: messages,
 					tools: tools,
 					tool_choice: "auto",
 					stream: true
-				})
+				};
+				if (this.effort && (this.defaultModel.startsWith("o1") || this.defaultModel.startsWith("o3"))) {
+					params.reasoning_effort = this.effort;
+				}
+				response = await this.client.responses.create(params);
 			} catch (e) {
 				if (e.status == 429) {
 					logError('Rate limit exceeded. Please try again later.');

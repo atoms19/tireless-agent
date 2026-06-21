@@ -10,13 +10,18 @@ import { LLMTool } from "../tools/types";
 
 
 export class openAICompletionsLLMSDK extends LLMSDK {
-	constructor(apiKey: string, url: string) {
+	defaultModel: string;
+	effort: string;
+
+	constructor(apiKey: string, url: string, model?: string, effort?: string) {
 	  console.log("recieved",apiKey,url)
 		super(new OpenAI({
 			apiKey: apiKey,
 			baseURL: url,
 		}), "openai")
 		this.availableModels = [];
+		this.defaultModel = model || "google/gemma-4-31b-it:free";
+		this.effort = effort || "low";
 	}
 
 	async *startPrompt(messages: LLMessage[], tools: LLMTool[]) {
@@ -25,15 +30,15 @@ export class openAICompletionsLLMSDK extends LLMSDK {
 			let response;
 
 			try {
-
-				response = await this.client.chat.completions.create({
-					model: "google/gemma-4-31b-it:free",
-				  messages:messages,
-				 // tools: tools,
-				  //tool_choice: "auto",
-				  stream: true
-				})
-
+				const params: any = {
+					model: this.defaultModel,
+					messages: messages,
+					stream: true
+				};
+				if (this.effort && (this.defaultModel.startsWith("o1") || this.defaultModel.startsWith("o3"))) {
+					params.reasoning_effort = this.effort;
+				}
+				response = await this.client.chat.completions.create(params);
 			} catch (e) {
 			  console.log(e)
 				if (e.status == 429) {
