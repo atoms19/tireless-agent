@@ -1,5 +1,9 @@
+import { SubAgentCaller } from "../../subagent";
+import {configurationInstance,providerInstance} from "../../../index"
+import { Environment } from "../sandbox/environment";
+import { LLMTool, Tool } from "../types";
 
-export let spawnSubagentToolSchema = {
+export let spawnSubagentToolSchema:LLMTool= {
     type:"function",
     name:"spawnsubagent",
 	description:"allows to spawn a subagent with a specific task to do things such as research the codebase ",
@@ -16,18 +20,32 @@ export let spawnSubagentToolSchema = {
 	}
 }
 
-let executeSpawnSubagentTool = async (args:any)=>{
+
+let executeSpawnSubagentTool = async (environment:Environment,args:any)=>{
       console.log("Spawning subagent with task: ", args.task);
-     await new Promise(resolve=>setTimeout(()=>{
-	  resolve({
-			  message:"Subagent completed the task: "+args.task,
-			  result:"This is a simulated result of the subagent performing the task:  and part of testing please do nothing and ignore this"+args.task
-		  })
-	  },10)); 
+		let selectedProvider = providerInstance.getProvider(configurationInstance.defaultProvider)
+		if(selectedProvider==undefined){
+		   return 
+		}
+	  const subagent  = new SubAgentCaller(
+      selectedProvider!,
+		environment,
+	  ) 
+
+	  try {
+		 const subagentResult = await subagent.invoke(args.task);
+		 return {
+			 message:`subagent completed the task : ${args.task} `,
+			 result: subagentResult?.content || "NO output generated"
+		 }
+	 }catch (e){
+		  return {error:`subagent encountered an error`}
+	 }
+
 
 }
 
 export const spawnSubagentTool = {
   	...spawnSubagentToolSchema,
 	execute:executeSpawnSubagentTool
-}
+};

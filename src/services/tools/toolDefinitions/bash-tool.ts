@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import { LLMTool } from "../types";
+import { LLMTool, Tool } from "../types";
 import { spawn } from "child_process";
 import { PermissionManager, perms } from "../permissionManager";
 import { Environment } from "../sandbox/environment";
@@ -78,7 +78,7 @@ const execBashTool = (args:any)=>{
 
 export let bashTool = {
 	 ...bashToolSchema,
-	 execute: execBashToolNew
-}
+	 execute: execBashToolNew,
+} as Tool
 
 

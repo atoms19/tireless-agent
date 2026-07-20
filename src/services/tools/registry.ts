@@ -24,4 +24,7 @@ export class ToolRegistry {
 			 description:t.description
 		 } as LLMTool));
 	 }
+	 getAllToolsForSubagent(subagent:string){
+         
+	 }
 }

@@ -5,7 +5,8 @@ export interface Tool{
    name:string,
 	description:string,
    parameters:any,
-	 execute:(execEnv:Environment,args:any)=>Promise<any>
+	permittedAgents?:string[],
+	 execute:(execEnv:Environment,args:any)=>void|Promise<any>
 }
 
 export type LLMTool = Pick<Tool, "name" | "description" | "parameters" | "type" >;

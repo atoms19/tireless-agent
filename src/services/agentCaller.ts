@@ -90,7 +90,7 @@ class AgentCaller {
 		})
 
 
-		let toolcalls = chunk;
+		let toolcalls = Array.isArray(chunk) ? chunk : [];
 		console.log(toolcalls)
 
 

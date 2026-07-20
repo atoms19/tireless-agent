@@ -41,11 +41,13 @@ export class openAILLMSDK extends LLMSDK {
 					params.reasoning_effort = this.effort;
 				}
 				response = await this.client.responses.create(params);
-			} catch (e) {
+			} catch (e: any) {
+				console.log("Error in OpenAI SDK call:", e);
 				if (e.status == 429) {
 					logError('Rate limit exceeded. Please try again later.');
-					exit()
+					process.exit(1);
 				}
+				throw e;
 			}
 
 			let toolCalls: ToolCall[] = [];
