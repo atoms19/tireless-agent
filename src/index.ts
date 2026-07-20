@@ -13,17 +13,16 @@ export let providerInstance = new ProviderService();
 export let configurationInstance = new ConfigurationService();
 let agentCallerInstance:AgentCaller;
 
-
 try{
-await providerInstance.loadSavedData()
-console.log(chalk.green('cached credentials loaded successfully'))
+  await providerInstance.loadSavedData()
+  console.log(chalk.green('cached credentials loaded successfully'))
 }catch(e){
   console.log(chalk.red('could not load cached credentials'))
   console.log(e)
 }
 
 try{
-await configurationInstance.loadSavedData()
+  await configurationInstance.loadSavedData()
 console.log(chalk.green('configuration loaded successfully'))
 }catch(e){
   console.log(chalk.red('could not load configuration'))

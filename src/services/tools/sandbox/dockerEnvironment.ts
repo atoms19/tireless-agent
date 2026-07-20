@@ -1,5 +1,6 @@
 import { spawn } from 'child_process';
 import { Environment } from './environment';
+import { execSync } from 'child_process';
 
 interface ExecutorOutput {
 	success: boolean;
@@ -90,7 +91,10 @@ export class DockerEnvironment implements Environment {
 				mounts += ` -v ${options.mountPath}:/app `
 			}
 		}
-		this.environmentProcess = spawn("bash", ["-c", `docker run -t --rm -d --name ${namegen} ${mounts} ${environmentImage}`], {
+		let uid =execSync('id -u',{encoding:"utf8"}).trim();
+		let gid = execSync('id -g',{encoding:"utf8"}).trim();
+
+		this.environmentProcess = spawn("bash", ["-c", `docker run -t --rm -d --name ${namegen} ${mounts}  --user ${uid}:${gid}  ${environmentImage}`], {
 			stdio: ["ignore", "pipe", "pipe"]
 		})
 
